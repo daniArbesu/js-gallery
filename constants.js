@@ -63,3 +63,6 @@ export const MOCK_CARDS = [
     score: 0,
   },
 ];
+
+export const API_URL = '#';
+export const TECHNOLOGIES_URL = `${API_URL}/technologies`;

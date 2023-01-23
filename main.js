@@ -1,4 +1,4 @@
-import { MOCK_CARDS } from './constants';
+import { MOCK_CARDS, TECHNOLOGIES_URL } from './constants';
 import './style.css';
 
 // SETUP
@@ -6,7 +6,7 @@ const appElement = document.querySelector('#app');
 
 const getContainerTemplate = () => `
 <div id="js-gallery" class="js-gallery">
-
+  <h1>Loading... ⌚</h1>
 </div>
 `;
 
@@ -14,6 +14,9 @@ appElement.innerHTML += getContainerTemplate();
 
 // LOGIC
 const galleryElement = document.querySelector('#js-gallery');
+const loadingElement = document.querySelector('#js-gallery > h1');
+
+let cards;
 
 const setupStars = (score) => {
   if (!score) {
@@ -42,10 +45,26 @@ const getCardTemplate = ({ name, logo, score }) => `
 `;
 
 const setupCards = () => {
-  MOCK_CARDS.forEach((card) => {
+  loadingElement.remove();
+
+  cards.forEach((card) => {
     const template = getCardTemplate(card);
     galleryElement.innerHTML += template;
   });
 };
 
-setupCards();
+const getTechnologies = async () => {
+  try {
+    const res = await fetch(TECHNOLOGIES_URL);
+    const cardsData = await res.json();
+
+    cards = cardsData;
+    setupCards();
+  } catch (err) {
+    console.log(err);
+    cards = MOCK_CARDS;
+    setupCards();
+  }
+};
+
+getTechnologies();
