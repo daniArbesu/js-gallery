@@ -4,6 +4,16 @@ import './style.css';
 // SETUP
 const appElement = document.querySelector('#app');
 
+const getModalTemplate = () => `
+<div id="js-modal" class="js-modal">
+  <div class="modal-header">
+    <h2 id="modal-title"></h2>
+    <button id="modal-close">❌</button>
+  </div>
+  <div class="modal-body"></div>
+</div>
+`;
+
 const getContainerTemplate = () => `
 <div id="js-gallery" class="js-gallery">
   <h1>Loading... ⌚</h1>
@@ -11,10 +21,12 @@ const getContainerTemplate = () => `
 `;
 
 appElement.innerHTML += getContainerTemplate();
+appElement.innerHTML += getModalTemplate();
 
 // LOGIC
 const galleryElement = document.querySelector('#js-gallery');
 const loadingElement = document.querySelector('#js-gallery > h1');
+const ModalElement = document.querySelector('#js-modal');
 
 let cards;
 
@@ -33,7 +45,7 @@ const setupStars = (score) => {
 };
 
 const getCardTemplate = ({ name, logo, score }) => `
-<div class="card">
+<div class="card" role="button">
   <h3>${name}</h3>
 
   <div class="image-container">
@@ -53,6 +65,15 @@ const setupCards = () => {
   });
 };
 
+const handleOpenModal = () => {
+  ModalElement.style.display = 'block';
+};
+
+const addCardsListeners = () => {
+  const cards = document.querySelectorAll('.js-gallery .card');
+  cards.forEach((card) => card.addEventListener('click', handleOpenModal));
+};
+
 const getTechnologies = async () => {
   try {
     const res = await fetch(TECHNOLOGIES_URL);
@@ -60,11 +81,21 @@ const getTechnologies = async () => {
 
     cards = cardsData;
     setupCards();
+    addCardsListeners();
   } catch (err) {
     console.log(err);
     cards = MOCK_CARDS;
     setupCards();
+    addCardsListeners();
   }
 };
 
+const addModalListeners = () => {
+  const closeButton = document.querySelector('#js-modal #modal-close');
+  closeButton.addEventListener('click', () => {
+    ModalElement.style.display = 'none';
+  });
+};
+
 getTechnologies();
+addModalListeners();

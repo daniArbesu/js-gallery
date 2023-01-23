@@ -20,6 +20,7 @@
 
 * {
   box-sizing: border-box;
+  position: relative;
 }
 
 body {
@@ -48,4 +49,23 @@ body {
 
 .score-container .star {
   font-size: 1.5rem;
+}
+
+.js-modal {
+  display: none;
+  position: fixed;
+  inset: 0;
+  top: 15vh;
+  max-width: 90%;
+  max-height: 60vh;
+  width: 100%;
+  z-index: 1;
+  background-color: var(--color-primary);
+  margin: 0 auto;
+}
+
+@media screen and (max-width: 768px) {
+  .js-modal {
+    max-width: 80%;
+  }
 }
