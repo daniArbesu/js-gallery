@@ -26,9 +26,13 @@ appElement.innerHTML += getModalTemplate();
 // LOGIC
 const galleryElement = document.querySelector('#js-gallery');
 const loadingElement = document.querySelector('#js-gallery > h1');
+
 const ModalElement = document.querySelector('#js-modal');
+const modalTitle = document.querySelector('#modal-title');
+const modalBody = document.querySelector('.modal-body');
 
 let cards;
+let currentCard;
 
 const setupStars = (score) => {
   if (!score) {
@@ -44,8 +48,8 @@ const setupStars = (score) => {
   return starContainer.join('');
 };
 
-const getCardTemplate = ({ name, logo, score }) => `
-<div class="card" role="button">
+const getCardTemplate = ({ name, logo, score, _id }) => `
+<div class="card" role="button" id="${_id}">
   <h3>${name}</h3>
 
   <div class="image-container">
@@ -65,7 +69,30 @@ const setupCards = () => {
   });
 };
 
-const handleOpenModal = () => {
+const getModalBodyTemplate = (cardData) => `
+<img src="${cardData.logo}" alt="${cardData.name}"/>
+<h3>Scored ${cardData.score.toFixed(2)} from ${cardData.reviews} reviews</h3>
+<div class="review-container">
+  <button data-score="1">⭐</button>
+  <button data-score="2">⭐</button>
+  <button data-score="3">⭐</button>
+  <button data-score="4">⭐</button>
+  <button data-score="5">⭐</button>
+</div>
+`;
+
+const setupModalData = (cardData) => {
+  currentCard = cardData;
+
+  modalTitle.innerText = cardData.name;
+  modalBody.innerHTML = getModalBodyTemplate(cardData);
+};
+
+const handleOpenModal = (event) => {
+  const cardId = event.target.id;
+
+  const cardData = cards.find((card) => card._id === cardId);
+  setupModalData(cardData);
   ModalElement.style.display = 'block';
 };
 
