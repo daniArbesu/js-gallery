@@ -33,6 +33,16 @@ const modalBody = document.querySelector('.modal-body');
 
 let cards;
 let currentCard;
+let isFetching = false;
+
+const handleCloseModal = () => {
+  ModalElement.style.display = 'none';
+};
+
+const addModalListeners = () => {
+  const closeButton = document.querySelector('#js-modal #modal-close');
+  closeButton.addEventListener('click', handleCloseModal);
+};
 
 const setupStars = (score) => {
   if (!score) {
@@ -41,7 +51,7 @@ const setupStars = (score) => {
 
   let starContainer = [];
 
-  for (let i = 1; i < score; i++) {
+  for (let i = 1; i <= score; i++) {
     starContainer.push(`<span class="star">⭐</span>`);
   }
 
@@ -62,6 +72,7 @@ const getCardTemplate = ({ name, logo, score, _id }) => `
 
 const setupCards = () => {
   loadingElement.remove();
+  galleryElement.innerHTML = '';
 
   cards.forEach((card) => {
     const template = getCardTemplate(card);
@@ -79,13 +90,66 @@ const getModalBodyTemplate = (cardData) => `
   <button data-score="4">⭐</button>
   <button data-score="5">⭐</button>
 </div>
+<p>Click one of the stars to vote</p>
 `;
+
+const postReview = async (id, score) => {
+  try {
+    if (isFetching) {
+      return;
+    }
+
+    isFetching = true;
+
+    const res = await fetch(`${TECHNOLOGIES_URL}/${id}`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        score,
+      }),
+    });
+
+    const updatedCard = await res.json();
+
+    cards = cards.map((card) => {
+      return card._id === updatedCard._id ? updatedCard : card;
+    });
+
+    setupCards();
+    addCardsListeners();
+    setupModalData(updatedCard);
+    handleCloseModal();
+
+    isFetching = false;
+  } catch (err) {
+    console.log('Error', err);
+    isFetching = false;
+  }
+};
+
+const handleReview = (event) => {
+  const score = Number(event.target.getAttribute('data-score'));
+  postReview(currentCard._id, score);
+};
+
+const addScoreButtonsListeners = () => {
+  const scoreButtons = document.querySelectorAll(
+    '#js-modal .review-container > button'
+  );
+
+  scoreButtons.forEach((button) => {
+    button.addEventListener('click', handleReview);
+  });
+};
 
 const setupModalData = (cardData) => {
   currentCard = cardData;
 
   modalTitle.innerText = cardData.name;
   modalBody.innerHTML = getModalBodyTemplate(cardData);
+  addScoreButtonsListeners();
 };
 
 const handleOpenModal = (event) => {
@@ -115,13 +179,6 @@ const getTechnologies = async () => {
     setupCards();
     addCardsListeners();
   }
-};
-
-const addModalListeners = () => {
-  const closeButton = document.querySelector('#js-modal #modal-close');
-  closeButton.addEventListener('click', () => {
-    ModalElement.style.display = 'none';
-  });
 };
 
 getTechnologies();
